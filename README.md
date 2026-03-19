@@ -10,15 +10,62 @@ Automate the extraction of massive transaction datasets to build a resilient dat
 
 ## Technical Architecture
 * **Extract:** Automated Python script querying the official Blizzard REST API (bypassing strict WAF restrictions via custom HTTP headers).
-* **Transform:** JSON payload parsing and creation of a static reference dictionary (CRM) mapping numeric IDs to readable item names and qualities.
+* **Transform:** SQL-based transformations in Silver layer (deduplication, type casting, normalization)
 * **Load:** Massive data ingestion (`BULK INSERT`) of flat files into a local **SQL Server** database.
 * **Orchestration:** Python-based daemon for hourly data collection (Local Data Lake creation).
 
+### Data Modeling & Processing
+- Implementation of a Medallion Architecture (Bronze, Silver, Gold)
+- SQL-based data transformation (ELT approach)
+- Data cleaning and deduplication in Silver layer
+
+## Data Processing Strategy
+
+This project follows an ELT approach:
+- Raw data is ingested without modification
+- Transformations are performed directly in SQL
+- This ensures scalability and reproducibility of data pipelines
+
+The database is structured using dedicated schemas:
+
+- `bronze` → raw ingested data (no transformation)
+- `silver` → cleaned, deduplicated, and normalized data
+- `gold` → business-ready analytical models (in progress)
+
+
+
 ## Repository Structure
-* `extract_crm_items.py` : Generates the static item dictionary (CRM).
-* `extract_erp_auctions.py` : One-shot extraction of active Auction House transactions (ERP).
-* `auto_collector.py` : Automated daemon for hourly historical data collection.
-* `transform_lua.py` : Regex-based parsing script to convert third-party Lua add-on data into clean CSVs.
+
+### Python Scripts
+
+- `extract_erp_auctions.py`
+  → Extracts live auction data from Blizzard API and saves it as CSV
+
+- `extract_crm_items.py`
+  → Builds a reference dataset mapping item IDs to names, quality, and class
+
+- `auto_collector.py`
+  → Runs continuously to collect auction snapshots over time (historical tracking)
+
+- `lua_parser.py`
+  → Parses Lua addon files and converts them into clean CSV datasets
+
+---
+
+### SQL Scripts
+
+- `init_database.sql`
+  → Creates the `wow_economy` database and initializes schemas:
+  (`bronze`, `silver`, `gold`)
+
+- `01_ddl_bronze_layer.sql`
+  → Defines raw tables in the `bronze` schema:
+  - `bronze.erp_auctions`
+  - `bronze.crm_items`
+
+- `02_load_bronze_layer.sql`
+  → Loads CSV data into bronze tables using `BULK INSERT`
+
 
 ## How to Run
 1. Clone the repository.
@@ -33,4 +80,4 @@ Automate the extraction of massive transaction datasets to build a resilient dat
 * **[ ] Silver Layer:** Pending (Data cleansing, deduplication, and type casting).
 * **[ ] Gold Layer:** Pending (Star schema modeling for analytical consumption).
 
-*Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.*
+*(Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.)*
