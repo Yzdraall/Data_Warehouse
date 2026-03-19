@@ -27,3 +27,10 @@ Automate the extraction of massive transaction datasets to build a resilient dat
 4. Start the hourly data collection daemon: `python auto_collector.py`
 
 *(Note: For security and storage optimization, raw data files (.csv, .json), and client tokens are excluded from this repository via `.gitignore`).*
+
+## Current Progress: Medallion Architecture
+* **[x] Bronze Layer:** Implemented automated massive data ingestion of flat CSV files into a local SQL Server database. The raw layer schema strictly mirrors the source API extracts to ensure zero data loss and historical tracking.
+* **[ ] Silver Layer:** Pending (Data cleansing, deduplication, and type casting).
+* **[ ] Gold Layer:** Pending (Star schema modeling for analytical consumption).
+
+*Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.*

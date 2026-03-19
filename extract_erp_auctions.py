@@ -1,8 +1,12 @@
 import requests
 import json
+import os
+from dotenv import load_dotenv
 
-CLIENT_ID = 'Your ID'
-CLIENT_SECRET = 'Your secret ID'
+load_dotenv()
+
+CLIENT_ID = os.getenv('BLIZZARD_CLIENT_ID')
+CLIENT_SECRET = os.getenv('BLIZZARD_CLIENT_SECRET')
 
 print("--- Extraction de l'Hôtel des Ventes ---")
 

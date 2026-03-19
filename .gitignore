@@ -1,11 +1,12 @@
-# Fichiers de données brutes
+# Data files
 *.csv
 *.json
-*.txt
+*.lua
 
-# Variables d'environnement / Clés API
+# Sensitive info
 .env
+config.py
 
-# Dossiers générés par Python
+# Python folders
 __pycache__/
-*.pyc
+.venv/
