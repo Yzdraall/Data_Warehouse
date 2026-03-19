@@ -33,4 +33,4 @@ Automate the extraction of massive transaction datasets to build a resilient dat
 * **[ ] Silver Layer:** Pending (Data cleansing, deduplication, and type casting).
 * **[ ] Gold Layer:** Pending (Star schema modeling for analytical consumption).
 
-*Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.*
+*Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.* 😉
