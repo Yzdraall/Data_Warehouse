@@ -9,15 +9,15 @@ MMORPGs serve as massive sandbox environments that closely mirror real-world hum
 Automate the extraction of massive transaction datasets to build a resilient data architecture, allowing for advanced analytics on a dynamic virtual economy.
 
 ## Technical Architecture
-* **Extract:** Automated Python script querying the official Blizzard REST API (bypassing strict WAF restrictions via custom HTTP headers).
-* **Transform:** SQL-based transformations in Silver layer (deduplication, type casting, normalization)
-* **Load:** Massive data ingestion (`BULK INSERT`) of flat files into a local **SQL Server** database.
-* **Orchestration:** Python-based daemon for hourly data collection (Local Data Lake creation).
+* **Extract:** Python scripts querying the official Blizzard REST API (bypassing strict WAF restrictions via custom HTTP headers).
+* **Orchestration & Cloud:** Continuous 24/7 data collection daemon deployed on a Google Cloud Platform (GCP) Linux instance (`e2-micro`).
+* **Transform:** SQL-based transformations in the Silver layer (Window functions for deduplication, type casting, text normalization).
+* **Load:** Massive data ingestion (`BULK INSERT`) into a local SQL Server database, processed via Stored Procedures.
 
 ### Data Modeling & Processing
 - Implementation of a Medallion Architecture (Bronze, Silver, Gold)
 - SQL-based data transformation (ELT approach)
-- Data cleaning and deduplication in Silver layer
+- Data cleaning and deduplication in the Silver layer
 
 ## Data Processing Strategy
 
@@ -31,8 +31,6 @@ The database is structured using dedicated schemas:
 - `bronze` → raw ingested data (no transformation)
 - `silver` → cleaned, deduplicated, and normalized data
 - `gold` → business-ready analytical models (in progress)
-
-
 
 ## Repository Structure
 
@@ -55,17 +53,26 @@ The database is structured using dedicated schemas:
 ### SQL Scripts
 
 - `init_database.sql`
-  → Creates the `wow_economy` database and initializes schemas:
-  (`bronze`, `silver`, `gold`)
+  → Creates the `wow_economy` database and initializes schemas (`bronze`, `silver`, `gold`)
 
 - `01_ddl_bronze_layer.sql`
-  → Defines raw tables in the `bronze` schema:
-  - `bronze.erp_auctions`
-  - `bronze.crm_items`
+  → Defines raw tables in the `bronze` schema
 
 - `02_load_bronze_layer.sql`
   → Loads CSV data into bronze tables using `BULK INSERT`
 
+- `03_ddl_silver_layer.sql`
+  → Creates the cleaned tables in the `silver` schema with proper data types.
+
+- `04_proc&load_silver.sql`
+  → Stored procedure executing the ETL process: truncates tables, removes duplicates, and converts currencies.
+
+### Data Quality Assessment (DQA)
+A suite of SQL validation scripts to ensure data integrity during pipeline execution:
+- `check_duplicates_crm.sql` / `check_duplicates_erp.sql` → Validates window function deduplication.
+- `check_no_APIbug.sql` → Identifies negative values or aberrant quantities.
+- `check_no_id.sql` → Ensures referential integrity between auctions and the item dictionary.
+- `check_null_values.sql` → Tracks missing critical data points.
 
 ## How to Run
 1. Clone the repository.
@@ -77,7 +84,7 @@ The database is structured using dedicated schemas:
 
 ## Current Progress: Medallion Architecture
 * **[x] Bronze Layer:** Implemented automated massive data ingestion of flat CSV files into a local SQL Server database. The raw layer schema strictly mirrors the source API extracts to ensure zero data loss and historical tracking.
-* **[ ] Silver Layer:** Pending (Data cleansing, deduplication, and type casting).
-* **[ ] Gold Layer:** Pending (Star schema modeling for analytical consumption).
+* **[x] Silver Layer:** Developed SQL Stored Procedures for ETL processing. Implemented deduplication via Window Functions (`PARTITION BY`), text cleansing, and currency conversion. Added DQA monitoring scripts.
+* **[ ] Gold Layer:** Pending (Star schema modeling for analytical consumption and business views).
 
 *Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.* 😉

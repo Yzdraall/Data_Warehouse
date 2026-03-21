@@ -1,0 +1,3 @@
+SELECT ID, COUNT(*) FROM bronze.crm_items
+GROUP BY ID
+HAVING COUNT(*) > 1 OR COUNT(*) IS NULL

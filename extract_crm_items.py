@@ -52,7 +52,7 @@ for item_id in top_items:
     if res.status_code == 200:
         data = res.json()
         info = {
-            "ID": item_id,
+            "item_ID": item_id,
             "Name": data.get("name", "Inconnu"),
             "Quality": data.get("quality", {}).get("name", "Commune"),
             "ItemClass": data.get("item_class", {}).get("name", "Autre")
