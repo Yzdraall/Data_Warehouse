@@ -38,13 +38,14 @@ except FileNotFoundError:
 
 erp_items = set()
 try:
-    with open("source_erp_wow_auctions.json", 'r', encoding='utf-8') as f:
-        auctions = json.load(f)
-        for auc in auctions:
-            erp_items.add(int(auc["item"]["id"]))
-    print(f"[{len(erp_items)}] objets uniques trouvés dans source_erp_wow_auctions.json.")
+    with open("history_erp_auctions.csv", 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get("item_id") and row["item_id"].strip().isdigit():
+                erp_items.add(int(row["item_id"]))
+    print(f"[{len(erp_items)}] objets uniques trouvés dans l'historique ERP.")
 except FileNotFoundError:
-    print("Fichier source_erp_wow_auctions.json introuvable.")
+    print("Fichier history_erp_auctions.csv introuvable.")
     exit()
 
 

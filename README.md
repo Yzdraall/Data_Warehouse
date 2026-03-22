@@ -1,6 +1,12 @@
 # WoW Economy Data Warehouse (ETL Pipeline)
 
-A comprehensive Data Engineering project designed to Extract, Transform, and Load (ETL) real-time economic data from the World of Warcraft Auction House (Hyjal Server) into a local SQL Server Data Warehouse.
+A comprehensive Data Engineering project designed to Extract, Transform, and Load (ETL) real-time economic data from the World of Warcraft Auction House (Hyjal Server) into a local SQL Server Data Warehouse to analyze WoW's economy system.
+
+### Final output: The WoW Economy Dashboard
+
+Here is a snapshot of the Power BI dashboard fed by this ETL pipeline. It visualizes key metrics such as total auctions, market capitalization by category, price trends over time, and rarity distribution.
+
+![Wow Economy Power BI Dashboard](Power_BI_picture.png)
 
 ## Why World of Warcraft?
 MMORPGs serve as massive sandbox environments that closely mirror real-world human behavior. Just as the infamous "Corrupted Blood" virtual epidemic in WoW was utilized by epidemiologists to model real-world disease spread in recognized scientific papers, the game's Auction House provides a highly consistent, data-rich ecosystem. It is an ideal testing ground to study real-world economic principles such as inflation, market manipulation, and supply/demand elasticity using millions of active, player-driven data points.
@@ -91,8 +97,10 @@ A collection of pre-built SQL queries answering direct business questions on the
 ## How to Run
 1. Clone the repository.
 2. Add your Blizzard API credentials to a `.env` file.
-3. Generate the static reference table: `python extract_crm_items.py`
-4. Start the hourly data collection daemon: `python auto_collector.py`
+3. Start the hourly data collection daemon: `python auto_collector.py`. This will create the `history_erp_auctions.csv` file, which will contain every auction available every hour.
+4. Generate the static reference table: `python extract_crm_items.py`. This will create `source_crm_items.csv`, the dictionary mapping the item IDs to the items themselves.
+5. Execute the `.sql` scripts in numerical order. These will build the data infrastructure as described above.
+6. Connect Power BI (or any other BI tool) to your Gold views to report on the data analysis.
 
 *(Note: For security and storage optimization, raw data files (.csv, .json), and client tokens are excluded from this repository via `.gitignore`).*
 
@@ -100,5 +108,6 @@ A collection of pre-built SQL queries answering direct business questions on the
 * **[x] Bronze Layer:** Implemented automated massive data ingestion of flat CSV files into a local SQL Server database. The raw layer schema strictly mirrors the source API extracts to ensure zero data loss and historical tracking.
 * **[x] Silver Layer:** Developed SQL Stored Procedures for ETL processing. Implemented deduplication via Window Functions, text cleansing, and currency conversion. Added DQA monitoring scripts.
 * **[x] Gold Layer:** Implemented Star Schema using SQL Views (Fact & Dimension). Created business-ready queries to analyze luxury markets, supply distribution, and market speculation.
+* **[ ] Waiting for Data to Aggregate:** Accumulate data to enable in-depth analysis of the WoW macro and micro-economy, identify market exploits, or predict foreseeable schemas of inflation crises.
 
 *Note: The current DWH is built on SQL Server, but the raw layer ingestion logic and standard SQL syntax used are designed to be easily adaptable to PostgreSQL environments for future scaling or external datasets.* 😉
