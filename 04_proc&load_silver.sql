@@ -55,14 +55,17 @@ BEGIN
             auction_id,
             item_id,
             quantity,
-            CAST(unit_price AS DECIMAL(18,4)) / 10000 AS unit_price_gold, --/10000 to set bronze to gold 
+            CAST(unit_price AS DECIMAL(18,4)) / 10000 AS unit_price_gold, 
             TRIM(time_left)
         FROM (
             SELECT *, ROW_NUMBER() OVER (PARTITION BY auction_id ORDER BY scan_time DESC) AS flag_last
             FROM bronze.erp_auctions
-            WHERE auction_id IS NOT NULL
+            WHERE auction_id IS NOT NULL 
+            AND item_id IS NOT NULL
+            AND scan_time IS NOT NULL
+            AND unit_price IS NOT NULL   
         ) t
-        WHERE flag_last = 1; --We only keep the last flag
+WHERE flag_last = 1;
         
         SET @end_time = GETDATE();
         PRINT '>> Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + 'seconds';
