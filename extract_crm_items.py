@@ -10,7 +10,6 @@ load_dotenv()
 CLIENT_ID = os.getenv('BLIZZARD_CLIENT_ID')
 CLIENT_SECRET = os.getenv('BLIZZARD_CLIENT_SECRET')
 
-print("--- Synchronisation Automatique du Référentiel Objets (CRM) ---")
 
 
 res_token = requests.post(
@@ -21,7 +20,7 @@ res_token = requests.post(
 token = res_token.json().get("access_token")
 
 if not token:
-    print("Échec de l'authentification.")
+    print("Authentification Failed.")
     exit()
 
 
@@ -31,9 +30,9 @@ try:
         reader = csv.DictReader(f)
         for row in reader:
             known_items.add(int(row["ID"]))
-    print(f"[{len(known_items)}] objets déjà présents dans source_crm_items.csv.")
+    print(f"[{len(known_items)}] already in crm.")
 except FileNotFoundError:
-    print("Fichier source_crm_items.csv introuvable, il sera créé.")
+    print("source_crm_items.csv file not found, it will be created.")
 
 
 erp_items = set()
@@ -43,17 +42,17 @@ try:
         for row in reader:
             if row.get("item_id") and row["item_id"].strip().isdigit():
                 erp_items.add(int(row["item_id"]))
-    print(f"[{len(erp_items)}] objets uniques trouvés dans l'historique ERP.")
+    print(f"[{len(erp_items)}] in erp.")
 except FileNotFoundError:
-    print("Fichier history_erp_auctions.csv introuvable.")
+    print("history_erp_auctions.csv file not found.")
     exit()
 
 
 missing_ids = list(erp_items - known_items)
-print(f"-> {len(missing_ids)} nouveaux objets à télécharger depuis l'API Blizzard...")
+print(f"-> {len(missing_ids)} downloading missing objects...")
 
 if not missing_ids:
-    print("Ton dictionnaire (CRM) est déjà parfaitement à jour !")
+    print("CRM up to date")
     exit()
 
 
@@ -86,4 +85,4 @@ with open("source_crm_items.csv", 'a', newline='', encoding='utf-8') as f:
         
         time.sleep(0.05) 
 
-print(f"\nSuccès : Le fichier source_crm_items.csv a été mis à jour avec {len(missing_ids)} nouveaux objets.")
+print(f"\nSuccess, source_crm_items.csv updated with {len(missing_ids)} new objects.")
